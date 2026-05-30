@@ -1,5 +1,7 @@
 # Document Translation Benchmark Platform
 
+This project builds an end‑to‑end service that converts an English PDF into a fully translated Vietnamese PDF using a custom‑trained Transformer (augmented with an existing LSTM model).
+
 ## Evolution of Neural Machine Translation: LSTM vs Transformer
 
 ### Author
@@ -12,7 +14,7 @@ AI Engineer Side Project
 
 ### Duration
 
-10 - 12 Weeks
+5 Days
 
 ---
 
@@ -31,7 +33,7 @@ This project aims to build a practical document translation platform while simul
 The system should allow users to:
 
 * Upload English PDF documents
-* Translate documents into French
+* Translate documents into Vietnamese
 * Compare translation quality across models
 * Download translated PDF files
 * View benchmarking metrics
@@ -50,7 +52,7 @@ The project will compare:
 
 ### Translation
 
-* Translate English text into French
+* Translate English text into Vietnamese
 * Support sentence-level translation
 * Support document-level translation
 
@@ -364,7 +366,7 @@ benchmark/
 
 ### Objectives
 
-Translate complete PDF documents.
+Translate complete PDF documents from English to Vietnamese.
 
 ### Pipeline
 
