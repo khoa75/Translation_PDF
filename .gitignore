@@ -1,2 +1,48 @@
 .venv/
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Jupyter
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+
+# Data (raw can be large, but keep raw if needed)
+/data/raw/
+/data/processed/
+/data/vocab/
+
+# Model checkpoints (large binaries)
+/models/*/checkpoint*
+
+# Logs / temporary files
+logs/
+*.log
+*.tmp
+
+# Streamlit cache
+.streamlit/
+
+# Docker
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# Misc
+*.DS_Store
+*.egg-info/
+*.dist-info/
+build/
+
+# uv lock (optional – keep if you want reproducible builds)
+# uv.lock
+
