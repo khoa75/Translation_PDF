@@ -45,4 +45,8 @@ build/
 
 # uv lock (optional – keep if you want reproducible builds)
 # uv.lock
+uv.lock
 
+# Opencode
+.opencode/
+.omo/
