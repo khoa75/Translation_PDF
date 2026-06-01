@@ -32,17 +32,16 @@ This project aims to build a practical document translation platform while simul
 
 The system should allow users to:
 
-* Upload English PDF documents
-* Translate documents into Vietnamese
-* Compare translation quality across models
-* Download translated PDF files
-* View benchmarking metrics
+- Upload English PDF documents
+- Translate documents into Vietnamese
+- Compare translation quality across models
+- Download translated PDF files
+- View benchmarking metrics
 
 The project will compare:
 
 1. Seq2Seq LSTM
-2. Seq2Seq LSTM with Attention
-3. Transformer
+2. Transformer
 
 ---
 
@@ -52,22 +51,22 @@ The project will compare:
 
 ### Translation
 
-* Translate English text into Vietnamese
-* Support sentence-level translation
-* Support document-level translation
+- Translate English text into Vietnamese
+- Support sentence-level translation
+- Support document-level translation
 
 ### PDF Processing
 
-* Upload PDF files
-* Extract text from PDF
-* Translate extracted content
-* Generate translated PDF
+- Upload PDF files
+- Extract text from PDF
+- Translate extracted content
+- Generate translated PDF
 
 ### Benchmarking
 
-* Compare model performance
-* Display evaluation metrics
-* Visualize model results
+- Compare model performance
+- Display evaluation metrics
+- Visualize model results
 
 ---
 
@@ -75,19 +74,19 @@ The project will compare:
 
 ### Performance
 
-* Fast inference time
-* Efficient memory usage
+- Fast inference time
+- Efficient memory usage
 
 ### Scalability
 
-* Containerized deployment
-* Modular architecture
+- Containerized deployment
+- Modular architecture
 
 ### Maintainability
 
-* Clean code structure
-* Documentation
-* Automated testing
+- Clean code structure
+- Documentation
+- Automated testing
 
 ---
 
@@ -105,10 +104,10 @@ Translation Service
     +--------------------+
     |                    |
     v                    v
-LSTM Models      Transformer Models
+LSTM + Attention Models  Transformer Models
     |
     v
-Benchmark Module
+Benchmark Moule
     |
     v
 Storage Layer
@@ -120,57 +119,61 @@ Storage Layer
 
 ## Machine Learning
 
-* Python
-* PyTorch
-* Hugging Face Transformers
+- Python
+- PyTorch
+- Hugging Face Transformers
 
 ## Backend
 
-* FastAPI
-* Uvicorn
+- FastAPI
+- Uvicorn
 
 ## Frontend
 
-* Gradio
-
-or
-
-* React + Vite
+- Streamlit
 
 ## Data Storage
 
-* PostgreSQL
-
-or
-
-* MongoDB
+- MongoDB
 
 ## Deployment
 
-* Docker
-* Docker Compose
-* Linux VPS
+- Docker
+- Docker Compose
+- Linux VPS
 
 ---
 
 # 5. Dataset Selection
 
-## Candidate Datasets
+## 5.1 Selected Dataset Strategy
 
-### Multi30k
+To ensure the custom-trained models (Seq2Seq LSTM+Attention and Transformer) can handle the diverse nature of document translation (ranging from academic papers to technical manuals and reports), a **hybrid dataset strategy** is adopted:
 
-* Approximately 30,000 sentence pairs
-* Suitable for experimentation
+### Core Training Corpus: Combined OPUS Books & MTet (Curated Subset)
 
-### TED Talks
+- **OPUS Books:** Provides rich narrative structures and continuous context flow. However, to prevent the model from sounding overly literary or "dramatic" when translating official documents, it will be augmented with a curated subset of **MTet**.
+- **MTet (VietAI):** Selected for its multi-domain coverage. A subset focusing on formal domains (tech, academic, news, and legal) will be merged with OPUS Books to balance vocabulary and adapt the models to formal document styles.
 
-* Approximately 200,000 sentence pairs
-* More realistic translation data
+### Validation & Benchmark Datasets
 
-### OPUS Books
+- **IWSLT 2015 (TED Talks):** ~133K pairs of highly clean, academic-adjacent text. It will serve as the internal validation set during the training loop to monitor convergence.
+- **FLORES-200 (Meta):** A gold-standard evaluation dataset. This will be strictly reserved for the _Benchmark Framework (Phase 4)_ to evaluate final model performance (BLEU, ROUGE) and will **never** be exposed to the models during training to prevent data leakage.
 
-* Book translation corpus
-* Good language variety
+---
+
+## 5.2 Candidate Datasets Analysis
+
+The following datasets were evaluated during the research phase:
+
+| Dataset Name        | Scale (Sentence Pairs) | Data Quality   | Primary Domain            | Project Role                | Justification                                                                                     |
+| :------------------ | :--------------------- | :------------- | :------------------------ | :-------------------------- | :------------------------------------------------------------------------------------------------ |
+| **PhoMT** _(VinAI)_ | ~3.02M                 | Very High      | News / General            | Candidate Baseline          | Gold standard for En-Vi baseline training, but mostly limited to news-style text.                 |
+| **MTet** _(VietAI)_ | ~4.2M                  | High           | Multi-domain (11 Sectors) | **Selected (Subset)**       | Crucial for adapting the model to diverse document types (medical, law, tech).                    |
+| **OPUS Books**      | ~100K+                 | High           | Literature / Novels       | **Selected (Core)**         | Great for long-context patterns and continuous sentence variations.                               |
+| **IWSLT 2015**      | ~133K                  | Very High      | TED Talks / Academic      | **Selected (Validation)**   | Exceptionally clean alignment; ideal for fast evaluation during training epochs.                  |
+| **CCMatrix**        | Multi-Million          | Medium (Noisy) | Web Crawl                 | Excluded                    | Huge scale but contains high noise levels; requires heavy preprocessing for custom architectures. |
+| **FLORES-200**      | ~1,012 (per split)     | Very High      | Wiki / Miscellaneous      | **Selected (Testing Only)** | Industry-standard for zero-shot translation benchmarking and final metrics calculation.           |
 
 ---
 
@@ -186,9 +189,9 @@ or
 
 ### Deliverables
 
-* Project proposal
-* Dataset analysis
-* Architecture design
+- Project proposal
+- Dataset analysis
+- Architecture design
 
 ### Outputs
 
@@ -213,11 +216,11 @@ Build a reusable preprocessing pipeline.
 
 ### Tasks
 
-* Download dataset
-* Clean data
-* Tokenization
-* Vocabulary creation
-* Train-validation-test split
+- Download dataset
+- Clean data
+- Tokenization
+- Vocabulary creation
+- Train-validation-test split
 
 ### Outputs
 
@@ -242,47 +245,22 @@ Implement a basic Seq2Seq LSTM model.
 
 ### Tasks
 
-* Encoder LSTM
-* Decoder LSTM
-* Training pipeline
-* Evaluation pipeline
+- Encoder LSTM
+- Decoder LSTM
+- Training pipeline
+- Evaluation pipeline
 
 ### Metrics
 
-* Training Loss
-* Validation Loss
-* BLEU Score
+- Training Loss
+- Validation Loss
+- BLEU Score
 
 ### Outputs
 
 ```text
 models/
 └── lstm/
-```
-
----
-
-## Phase 3: LSTM with Attention
-
-### Duration
-
-1 Week
-
-### Objectives
-
-Improve baseline performance using attention.
-
-### Tasks
-
-* Bahdanau Attention
-* Luong Attention (optional)
-* Performance comparison
-
-### Outputs
-
-```text
-models/
-└── attention/
 ```
 
 ---
@@ -299,15 +277,15 @@ Implement Transformer architecture.
 
 ### Tasks
 
-* Positional Encoding
-* Multi-Head Attention
-* Encoder-Decoder Architecture
+- Positional Encoding
+- Multi-Head Attention
+- Encoder-Decoder Architecture
 
 ### Metrics
 
-* BLEU Score
-* Training Time
-* Inference Time
+- BLEU Score
+- Training Time
+- Inference Time
 
 ### Outputs
 
@@ -332,20 +310,20 @@ Create an evaluation framework for comparing models.
 
 #### Translation Quality
 
-* BLEU
-* ROUGE
-* METEOR
+- BLEU
+- ROUGE
+- METEOR
 
 #### Efficiency
 
-* Training Time
-* Inference Latency
-* Memory Usage
+- Training Time
+- Inference Latency
+- Memory Usage
 
 #### Model Complexity
 
-* Number of Parameters
-* Model Size
+- Number of Parameters
+- Model Size
 
 ### Outputs
 
@@ -385,9 +363,9 @@ PDF Generation
 
 ### Features
 
-* Upload PDF
-* Select translation model
-* Download translated PDF
+- Upload PDF
+- Select translation model
+- Download translated PDF
 
 ### Outputs
 
@@ -445,10 +423,10 @@ backend/
 
 ### Features
 
-* PDF Upload
-* Model Selection
-* Translation Results
-* Benchmark Dashboard
+- PDF Upload
+- Model Selection
+- Translation Results
+- Benchmark Dashboard
 
 ### Outputs
 
@@ -520,10 +498,10 @@ Translation Models
 
 Include:
 
-* Installation
-* Training
-* Deployment
-* Usage Guide
+- Installation
+- Training
+- Deployment
+- Usage Guide
 
 #### Technical Report
 
@@ -531,12 +509,11 @@ Include:
 2. Dataset
 3. Methodology
 4. Seq2Seq LSTM
-5. LSTM + Attention
-6. Transformer
-7. Benchmark Results
-8. Deployment
-9. Discussion
-10. Future Work
+5. Transformer
+6. Benchmark Results
+7. Deployment
+8. Discussion
+9. Future Work
 
 ---
 
@@ -549,7 +526,7 @@ document-translation-platform/
 ├── frontend/
 ├── models/
 │   ├── lstm/
-│   ├── attention/
+
 │   └── transformer/
 │
 ├── benchmark/
@@ -574,13 +551,13 @@ document-translation-platform/
 
 The project is considered complete when:
 
-* User can upload PDF files
-* User can choose a translation model
-* Translation is generated successfully
-* Translated PDF can be downloaded
-* Benchmark dashboard is available
-* Application runs via Docker
-* Documentation is complete
+- User can upload PDF files
+- User can choose a translation model
+- Translation is generated successfully
+- Translated PDF can be downloaded
+- Benchmark dashboard is available
+- Application runs via Docker
+- Documentation is complete
 
 ---
 
@@ -588,29 +565,28 @@ The project is considered complete when:
 
 By completing this project, the developer will gain experience in:
 
-* Natural Language Processing
-* Machine Translation
-* Deep Learning
-* PyTorch
-* Transformer Architecture
-* Model Evaluation
-* Backend Development
-* FastAPI
-* Docker
-* Linux Deployment
-* MLOps Fundamentals
-* Product Engineering
+- Natural Language Processing
+- Machine Translation
+- Deep Learning
+- PyTorch
+- Transformer Architecture
+- Model Evaluation
+- Backend Development
+- FastAPI
+- Docker
+- Linux Deployment
+- MLOps Fundamentals
+- Product Engineering
 
 ---
 
 # Future Enhancements
 
-* Vietnamese Translation
-* Multi-Language Support
-* Speech-to-Text Translation
-* OCR Integration
-* RAG-enhanced Translation
-* LLM-based Translation Evaluation
-* CI/CD Automation
-* Kubernetes Deployment
-
+- Vietnamese Translation
+- Multi-Language Support
+- Speech-to-Text Translation
+- OCR Integration
+- RAG-enhanced Translation
+- LLM-based Translation Evaluation
+- CI/CD Automation
+- Kubernetes Deployment

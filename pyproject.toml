@@ -1,7 +1,23 @@
 [project]
-name = "translate-en-to-fr-project"
+name = "translation"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fpdf2>=2.8.7",
+    "matplotlib>=3.10.9",
+    "nltk>=3.9.4",
+    "pdfminer-six>=20260107",
+    "plotly>=6.7.0",
+    "pymupdf>=1.27.2.3",
+    "rouge-score>=0.1.2",
+    "sacrebleu>=2.6.0",
+    "seaborn>=0.13.2",
+    "sentencepiece>=0.2.1",
+    "spacy>=3.8.14",
+    "torch>=2.12.0",
+    "torchaudio>=2.11.0",
+    "torchvision>=0.27.0",
+    "transformers>=5.9.0",
+]
