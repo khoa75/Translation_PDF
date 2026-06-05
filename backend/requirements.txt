@@ -1,0 +1,11 @@
+# Requirements for the Document Translation Benchmark Platform
+
+fastapi
+uvicorn
+pydantic
+torch
+PyPDF2
+fpdf
+matplotlib
+nltk
+rouge

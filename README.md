@@ -1,70 +1,95 @@
-# English‑PDF → Vietnamese‑PDF Translation Service
+# Document Translation Benchmark Platform
 
-## Overview
-This project provides an end‑to‑end system that takes an **English PDF** as input, extracts its text, translates the content into **Vietnamese** using a custom‑trained **Transformer** (augmented with an existing LSTM model from `Translation.ipynb`), and generates a translated **Vietnamese PDF** for download.
+This project builds an end-to-end service that converts an English PDF into a fully translated Vietnamese PDF using a custom-trained Transformer (augmented with an existing LSTM model).
 
 ## Features
-- Upload English PDF files via a simple UI (Gradio or React).
-- Automatic text extraction (`pdfminer.six`).
-- Hybrid translation engine:
-  - Fast draft with the LSTM baseline.
-  - High‑quality refinement with a Transformer trained from scratch.
-- PDF generation preserving paragraph flow (`fpdf2`).
-- Benchmarking tools to compare BLEU, ROUGE, METEOR and inference latency.
-- Docker‑compose setup for one‑click local deployment.
 
-## Architecture
+- Upload English PDF documents
+- Translate documents into Vietnamese
+- Compare translation quality across models
+- Download translated PDF files
+- View benchmarking metrics
+
+## Technology Stack
+
+- Python
+- PyTorch
+- FastAPI
+- Streamlit
+- Docker
+
+## Installation
+
+1. Clone the repository:
+   ```
+   git clone <repository-url>
+   cd document-translation-platform
+   ```
+
+2. Install dependencies:
+   ```
+   pip install -r backend/requirements.txt
+   ```
+
+3. For frontend (Streamlit):
+   ```
+   pip install streamlit
+   ```
+
+## Usage
+
+1. Start the backend server:
+   ```
+   uvicorn backend.main:app --host 0.0.0.0 --port 8000
+   ```
+
+2. Run the frontend:
+   ```
+   streamlit run frontend/app.py
+   ```
+
+3. Or use Docker for easier deployment:
+   ```
+   docker-compose up -d
+   ```
+
+## Project Structure
+
 ```
-[Frontend] → FastAPI Backend → Translator Service
-                              │
-                              ├─ LSTM baseline (saved checkpoint)
-                              └─ Custom Transformer (trained on EN‑VI parallel data)
-                              ↓
-                        PDF Generation (Vietnamese)
+document-translation-platform/
+├── backend/              # Backend API service
+├── frontend/             # Streamlit frontend
+├── models/               # Machine learning models
+│   ├── lstm/             # Seq2Seq LSTM implementation
+│   └── transformer/      # Transformer implementation
+├── benchmark/            # Evaluation and benchmarking
+├── services/              # PDF translation service
+│   └── pdf_translator/   # PDF processing components
+├── data/                 # Data processing and storage
+└── docs/                 # Documentation
 ```
-
-## Quick Start
-```bash
-# Clone the repository
-git clone <repo_url>
-cd Translation
-
-# Create virtual environment
-python -m venv .venv && source .venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Train the Transformer (optional, requires data in data/processed)
-python scripts/train_transformer.py --data data/processed
-
-# Run the API
-uvicorn backend.main:app --reload
-```
-
-## Docker
-```bash
-# Build the image
-docker build -t pdf-translator .
-
-# Start all services (API + optional UI)
-docker compose up
-```
-The service will be reachable at `http://localhost:8000`.
 
 ## API Endpoints
-- `POST /translate-pdf` – multipart PDF upload, query param `model=lstm|transformer|ensemble`.
-- `GET /health` – health check.
-- `GET /metrics` – benchmark results (BLEU, latency, etc.).
+
+- `POST /translate` - Translate text
+- `POST /translate-pdf` - Translate PDF document
+- `GET /models` - Get available models
+- `GET /benchmark` - Get benchmark results
+
+## Models
+
+The platform includes two neural machine translation models:
+
+1. **Seq2Seq LSTM**: A traditional sequence-to-sequence model with attention mechanism
+2. **Transformer**: A modern transformer architecture for improved translation quality
 
 ## Benchmarking
-```bash
-python benchmark/evaluation.py --model transformer
-```
-Outputs BLEU, ROUGE, METEOR scores and logs inference time.
 
-## Contributing
-Feel free to open issues or pull requests. Please keep the code style consistent and update the documentation when adding new features.
+The platform provides comprehensive benchmarking of both models across multiple metrics:
 
-## License
-[MIT License](LICENSE)
+- BLEU scores
+- ROUGE scores
+- METEOR scores
+- Training time
+- Inference time
+- Memory usage

@@ -38,6 +38,11 @@ The **Document Translation Benchmark Platform** is organized as a collection of 
 - **PDF Generation** – `generator.py` writes the translated Vietnamese text back to PDF using `fpdf2` or `reportlab`.
 - Handles model‑selection logic supplied by the API.
 
+**Implementation Status:** Partially implemented
+- PDF extraction functionality implemented
+- Translation pipeline in progress
+- PDF generation pending implementation
+
 ---
 
 ## 4. Model Agents
@@ -53,6 +58,11 @@ The **Document Translation Benchmark Platform** is organized as a collection of 
 - Handles positional encoding, multi‑head attention, and encoder‑decoder stacks.
 
 All three agents expose a common helper function `get_model(name: str) -> torch.nn.Module` defined in `models/__init__.py` so that the **Translation Service Agent** can load any model by name.
+
+**Implementation Status:** Implemented
+- Model architecture implemented
+- Training pipeline pending implementation
+- Evaluation metrics pending implementation
 
 ---
 
