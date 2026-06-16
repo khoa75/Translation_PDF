@@ -1,115 +1,74 @@
-# AGENTS Overview
+# Agent Working Notes – Document Translation Benchmark Platform
 
-The **Document Translation Benchmark Platform** is organized as a collection of loosely‑coupled agents (services/components) that communicate through well‑defined interfaces.  Below is a concise description of each agent, their responsibilities, and the primary files/folders where their implementation lives.
+## Quick Start
 
----
+- **Run backend:** `cd src && uvicorn api.main:app --host 0.0.0.0 --port 8000`
+- **Run frontend:** `streamlit run frontend/app.py`
+- **Run with Docker:** `docker compose up`
+- **Entrypoint for local dev:** Root `main.py` removed. Real app is in `src/api/main.py`.
 
-## 1. Frontend Agent
-**Location:** `frontend/`
-**Type:** UI / client‑side application (Gradio *or* React + Vite).  
-**Responsibilities:**
-- Accept PDF uploads from the user.
-- Allow model selection (LSTM, Transformer).
-- Display translation results and benchmark visualizations.
-- Communicate with the **Backend API Agent** via HTTP.
+## Environment & Tooling
 
----
+- **Python:** 3.13+ (enforced in `pyproject.toml`).
+- **Dependency manager:** `uv` (lockfile is `uv.lock`; do **not** commit `uv.lock` changes unless you deliberately updated deps).
+- **Virtual env:** `.venv/`.  Do not commit `.venv/` or `.env`.
 
-## 2. Backend API Agent
-**Location:** `backend/`
-**Framework:** FastAPI (served by Uvicorn).
-**Responsibilities:**
-- Expose REST endpoints:
-  - `POST /translate` – translate raw text.
-  - `POST /translate-pdf` – end‑to‑end PDF translation.
-  - `GET /models` – list available translation models.
-  - `GET /benchmark` – retrieve latest benchmark results.
-- Validate requests using **pydantic** schemas.
-- Forward work to the **Translation Service Agent** and **Benchmark Agent**.
-- Return JSON responses or streamed PDF files.
+## Monorepo Layout & Ownership
 
----
+| Directory | What lives here |
+|-----------|-----------------|
+| `src/api/` | FastAPI app (`main.py`), Pydantic schemas (`schemas.py`), empty `routers/` directory for future use. |
+| `frontend/` | Streamlit app (`app.py`). Hardcodes `BACKEND_URL = "http://localhost:8000"`. |
+| `notebooks/` | Jupyter notebook (`Translate.ipynb`) for training and experimentation. |
+| `src/services/pdf_translator/` | `TranslationService` class. `extractor.py` is **missing** and needs creation. |
+| `src/models/` | Owns **all** model code. `src/models/__init__.py` is currently empty. |
+| `src/models/lstm/` | Seq2Seq LSTM encoder/decoder (`model.py`), training (`train.py`), evaluation (`evaluate.py`). |
+| `src/models/transformer/` | Transformer model (`model.py`, `multihead_attention.py`), training notebook (`01_transformer_training.ipynb`). `TransformerModel.forward` is unimplemented. |
+| `src/benchmark/` | Metrics tracker, BLEU/ROUGE/METEOR evaluators, matplotlib visualizers. |
+| `src/__init__.py` | Empty, intentionally kept. |
+| `data/` | Data directory (raw/processed/vocab ignored by `.gitignore`). |
+| `tests/` | Empty. |
 
-## 3. Translation Service Agent
-**Location:** `services/pdf_translator/`
-**Responsibilities:**
-- **PDF Extraction** – `extractor.py` uses `pdfminer.six` or `PyMuPDF` to obtain raw English text.
-- **Model Invocation** – loads a model from the **Model Agents** (LSTM / Transformer) and performs inference.
-- **PDF Generation** – `generator.py` writes the translated Vietnamese text back to PDF using `fpdf2` or `reportlab`.
-- Handles model‑selection logic supplied by the API.
+## Architecture & Wiring
 
-**Implementation Status:** Partially implemented
-- PDF extraction functionality implemented
-- Translation pipeline in progress
-- PDF generation pending implementation
-
----
-
-## 4. Model Agents
-### 4.1 LSTM Agent
-**Location:** `models/lstm/`
-- Implements a classic Seq2Seq LSTM encoder‑decoder.
-- Provides `train.py`, `model.py` and checkpoint handling.
-
-
-### 4.3 Transformer Agent
-**Location:** `models/transformer/`
-- Implements a full Transformer architecture (or fine‑tunes a HuggingFace `MarianMT` / `M2M100` model).
-- Handles positional encoding, multi‑head attention, and encoder‑decoder stacks.
-
-All three agents expose a common helper function `get_model(name: str) -> torch.nn.Module` defined in `models/__init__.py` so that the **Translation Service Agent** can load any model by name.
-
-**Implementation Status:** Implemented
-- Model architecture implemented
-- Training pipeline pending implementation
-- Evaluation metrics pending implementation
-
----
-
-## 5. Benchmark Agent
-**Location:** `benchmark/`
-**Responsibilities:**
-- **Evaluation** – `evaluation.py` computes BLEU, ROUGE, METEOR on a validation set.
-- **Metrics Recording** – `metrics.py` stores per‑epoch loss, accuracy, and timing.
-- **Visualization** – `visualization.py` produces plots (matplotlib/plotly) for loss curves and benchmark dashboards.
-- Results are consumed by the **Frontend Agent** (or a separate dashboard service) via the `GET /benchmark` endpoint.
-
----
-
-## 6. Storage Layer Agent
-**Location:** `data/` and optional database (`backend/services/` with SQLModel or Motor).
-**Responsibilities:**
-- Persist raw PDFs, processed tokenized data, and vocabularies.
-- Store model checkpoints (`models/**/checkpoint.pt`).
-- Optionally maintain a PostgreSQL / MongoDB instance for metadata (experiment logs, benchmark scores).
-
----
-
-## 7. Orchestration / Docker Agent
-**Location:** `Dockerfile`, `docker-compose.yml`
-**Responsibilities:**
-- Build container images for **Backend API**, **Frontend**, and optional **Database**.
-- Wire networking so that the frontend can reach the backend (`http://backend:8000`).
-- Provide a single `docker compose up` command that launches the full system, satisfying the **Success Criteria** section of the plan.
-
----
-
-## 8. Documentation Agent
-**Location:** `docs/` and `README.md`
-**Responsibilities:**
-- Host architecture diagrams, setup guides, and API specifications.
-- Keep the project up‑to‑date with generated OpenAPI docs from FastAPI.
-
----
-
-### How the Agents Interact
-```text
-Frontend ⇄ Backend API ⇄ Translation Service ⇄ {LSTM | Transformer}
-                 │                         │
-                 └─ Benchmark Agent ⇄ Storage Layer ⇄ Data
 ```
-The arrows denote HTTP calls or direct Python imports, depending on whether the interaction crosses container boundaries (frontend ↔ backend) or stays in‑process (backend ↔ service/model agents).
+Frontend (Streamlit)
+         |
+         | HTTP
+         v
+Backend (FastAPI) ──> TranslationService (PDF in/out)
+         |                      |
+         |                      v
+         |              {LSTM Seq2Seq | Transformer}
+         |
+         └── GET /benchmark (stubbed; returns hardcoded scores)
+```
 
----
+- Backend CORS is **wildcarded** (`allow_origins=["*"]`); okay for local dev, not for production.
+- `src/api/main.py` instantiates `TranslationService()` and calls `load_models()` at import time; any import errors in model code will crash the server on startup.
 
-*This AGENTS.md file provides a high‑level map of the system’s components, making it easier for new contributors to locate the code responsible for each functional area.*
+## Key Gotchas
+
+1. **`extractor.py` is missing:** `src/services/pdf_translator/__init__.py` imports `PDFExtractor` from `.extractor`, but the file is not in the repo. Any import of `TranslationService` will fail until this file is created.
+2. **Canonical dependencies are in `pyproject.toml`:** `backend/requirements.txt` was removed. Use `pyproject.toml` and `uv` for package management.
+3. **`docker-compose.yml`** is now updated to use Python images for both backend and frontend services.
+4. **`Dockerfile`** updated to install deps from `pyproject.toml` and runs `uvicorn api.main:app`. It does **not** serve the Streamlit frontend.
+5. **Stub state:** No model checkpoints exist yet. `get_model()` is unimplemented, `TransformerModel.forward()` is `pass`. `TranslationService.translate_text()` currently returns placeholder strings like `[LSTM Translation] {text}`.
+6. **No more `main.py` at root:** Removed to avoid confusion. Real entrypoint is `src/api/main.py`.
+7. **`.gitignore` ignores checkpoints and data directories:** If you generate model checkpoints or processed data, they will not show up in `git status`.
+
+## Testing
+
+- There are no tests yet (`tests/` is empty). If you add tests, use `pytest` or `unittest`.
+- No existing test commands, CI, or pre-commit hooks.
+
+## Style & Conventions
+
+- Follow PEP 8 for Python code.
+- Keep `pyproject.toml` as the source of truth for dependencies.
+- Run backend from `src/` directory: `cd src && uvicorn api.main:app --host 0.0.0.0 --port 8000`
+
+## Verification
+
+- After starting the backend, verify with: `curl http://localhost:8000/models`
+- The placeholder `/benchmark` and `/translate` endpoints will return hardcoded or stubbed data.

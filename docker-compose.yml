@@ -2,26 +2,24 @@ version: '3.8'
 
 services:
   backend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
+      - ./src:/app/src
       - ./data:/app/data
-      - ./models:/app/models
-      - ./benchmark:/app/benchmark
-      - ./services:/app/services
     environment:
-      - PYTHONPATH=/app
+      - PYTHONPATH=/app/src
 
   frontend:
-    image: node:14
-    command: bash -c "cd /app/frontend && npm install && npm run dev"
+    image: python:3.13-slim
+    command: bash -c "pip install streamlit && streamlit run app.py"
     ports:
-      - "3000:3000"
+      - "8501:8501"
     volumes:
       - ./frontend:/app/frontend
-      - /app/frontend/node_modules
+    working_dir: /app/frontend
     depends_on:
       - backend
